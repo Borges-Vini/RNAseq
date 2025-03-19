@@ -1,0 +1,95 @@
+# Line  1 - Chromosome(s) that have genotype data
+TTT
+# Line  2 - Generate combined Quality Control reports using MultiQC? [YES|NO]
+YES
+# Line  3 - Path for MultiQC installation ("pip install multiqc" or "conda install multiqc"):
+
+
+
+
+
+
+# Line  3 - Directory for output files
+
+# Line  4 - Inclusion filename for SNPs
+
+# Line  5 - Inclusion filename for STRs and minimum distance (cM) from SNPs
+
+# Line  6 - Exclusion filename
+
+# Line  7 - Prepare files for pedigree structure validation (kstat.pl): [Y|N]
+
+# Line  8 - Minimum intermarker distance (cM)
+
+# Line  9 - Marker completion (%) threshold
+
+# Line 10 - Minor allele frequency (MAF) minimum and maximum cut-offs
+
+# Line 11 - Maximum LD threshold
+
+# Line 12 - Exclude monomorphic markers: [Y|N]
+
+# Line 13 - Number of subpanels (n)
+
+# Line 14 - Sequence of methods for each subpanel specified in line 13
+#             e.g., "1 fwd 1 1" means "for subpanel 1, use forward direction,
+#                   start at marker 1 on main panel, and start at marker 1 on pre-subpanel"
+#             Separate sequence of methods between panels by a " | "
+
+# Line 15 - Path of PLINK that will be used (e.g., /usr/bin/plink or /home/username/bin/plink)
+
+# Line 16 - Directory containing reference files (e.g., 1000 Genomes Project files)
+#             If you intend to use your own reference files, put subfolders for
+#             the AFR, AMR, ASN, and EUR populations under this directory prior to running marker_subpanels.pl
+
+# Line 17 - Population: [AFR|AMR|ASN|EUR]
+
+# Line 18 - Directory containing map files
+#             If there is a subdirectory for each chromosome, do not include it here
+
+# Line 19 - [(prefix=)(suffix)] of chromosome number in names of subdirectories
+#             where map files are located
+prefix= suffix=
+# Line 20 - [(prefix=)(suffix)] of chromosome number in input map filenames
+prefix= suffix=
+# Line 21 - Input map file has a header or not: header=[T|F]
+
+# Line 22 - Directory containing pedigree files
+#             If there is a subdirectory for each chromosome, do not include it here
+
+# Line 23 - [(prefix=)(suffix)] of chromosome number in names of subdirectories
+#             where pedigree files are located
+prefix= suffix=
+# Line 24 - [(prefix=)(suffix)] of chromosome number in input pedigree filenames
+prefix= suffix=
+# Line 25 - Input pedigree file has a header or not: header=[T|F]
+
+# Line 26 - Directory containing genotype data
+#             If there is a subdirectory for each chromosome, do not include it here
+
+# Line 27 - [(prefix=)(suffix)] of chromosome number in names of subdirectories
+#             where genotype files are located
+prefix= suffix=
+# Line 28 - [(prefix=)(suffix)] of chromosome number in input genotype filenames
+prefix= suffix=
+# Line 29 - Input genotype file has a header or not: header=[T|F]
+
+# Line 30 - Option: [1|2] for input file(s) containing IDs of genotyped individuals
+#             1: Use output files of transpose_fileset.pl
+#             2: Use a file containing the list of genotyped individuals (supplied by user)
+#             If you chose option 2, line 31 should contain the absolute path of input file
+#             and leave lines 32-34 blank.
+
+# Line 31 - If option 1 was chosen in line 30,
+#             indicate directory containing files with IDs of genotyped individuals
+#             If there is a subdirectory for each chromosome, do not include it here
+#           If option 2 was chosen in line 30,
+#             indicate input file containing list of IDs of genotyped individuals (absolute path)
+
+# Line 32 - [(prefix=)(suffix)] of chromosome number in names of subdirectories where files with
+#             IDs of genotyped individuals are located
+
+# Line 33 - [(prefix=)(suffix)] of chromosome number in files containing IDs of genotyped individuals
+
+# Line 34 - Input file containing IDs of genotyped individuals has a header or not: header=[T|F]
+
