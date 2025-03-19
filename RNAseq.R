@@ -1,3 +1,5 @@
+##### ABOUT #####
+
 # RStudio v.2024.12.0
 # R v. 4.4.1
 
@@ -28,14 +30,11 @@ invisible(lapply(packages, function(pkg) {
 args <- commandArgs(trailingOnly=TRUE)
 parfilepath <- args[1]
 parfilepath <- "/Users/vborges/RNAseq/RNAseq.par"
-
+if (!file.exists(parfilepath)) {stop("Error: The file does not exist at the specified path: ", parfilepath)} else {print("Reading parameter file")}
 parfile <- Filter(function(x) !grepl("^#", x) && nzchar(x), trimws(readLines(parfilepath, warn = FALSE)))
 
-if(!file.exists(paste(file, "/sampler.seed", sep = ""))) file.create(paste(file, "/sampler.seed", sep = ""))
 
-system("multiqc --version", intern = TRUE)
-system("which multiqc", intern = TRUE)
-system("conda install -c bioconda multiqc")
+
 
 ##### Checking installation #####
 
