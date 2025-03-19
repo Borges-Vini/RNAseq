@@ -1,7 +1,7 @@
-# Line  1 - Chromosome(s) that have genotype data
-TTT
+# Line  1 - Path for files .fastq
+/Users/vborges/Downloads/DELETE/
 # Line  2 - Generate combined Quality Control reports using MultiQC? [YES|NO]
-YES
+Yes
 # Line  3 - Path for MultiQC installation ("pip install multiqc" or "conda install multiqc"):
 
 
