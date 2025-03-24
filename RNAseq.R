@@ -34,16 +34,21 @@ if (!file.exists(parfilepath)) {stop("Error: The file does not exist at the spec
   } else {print("Reading parameter file")}
 parfile <- Filter(function(x) !grepl("^#", x) && nzchar(x), trimws(readLines(parfilepath, warn = FALSE)))
 
+##### Output Directory #####
+
+if (!file.exists(parfile[2])) {system(paste("mkdir", parfile[2]))
+} else {system(paste("rm -rf", parfile[2])); system(paste("mkdir", parfile[2])); print("Folder already exist. Overwriting.")}
+
 ##### FastQC #####
 
-java_path <- dirname(dirname(parfile[3]))
+java_path <- dirname(dirname(parfile[4]))
 Sys.setenv(JAVA_HOME=java_path)
-system("java -version")
+system(paste("java -version"))
 fastqc(fq.dir = (parfile[1]))
 
 ##### Summarizing QC Results #####
 
-if (parfile[2] %in% c("YES", "yes", "Yes")) { 
+if (parfile[3] %in% c("YES", "yes", "Yes")) { 
   
 #multiqc - Checking and installing
   venv_path <- "multiqc_env"
