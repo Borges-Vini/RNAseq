@@ -23,7 +23,7 @@ invisible(lapply(packages, function(pkg) {
     library(pkg, character.only = TRUE)
   }
 }))
-
+fastqc_install()
 
 ##### Variables #####
 
@@ -35,6 +35,11 @@ if (!file.exists(parfilepath)) {stop("Error: The file does not exist at the spec
 parfile <- Filter(function(x) !grepl("^#", x) && nzchar(x), trimws(readLines(parfilepath, warn = FALSE)))
 
 ##### FastQC #####
+
+java_path <- dirname(dirname(parfile[3]))
+Sys.setenv(JAVA_HOME=java_path)
+system("java -version")
+fastqc(fq.dir = (parfile[1]))
 
 ##### Summarizing QC Results #####
 
@@ -56,4 +61,5 @@ if (parfile[2] %in% c("YES", "yes", "Yes")) {
   } else { print("Valid folder with .fastq files found. Proceeding with analysis.")
   system(paste(multiqc_path, parfile[1],"-o", parfile[1]))}
 }
+
 

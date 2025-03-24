@@ -2,16 +2,14 @@
 /Users/vborges/Downloads/DELETE/
 # Line  2 - Generate combined Quality Control reports using MultiQC? [YES|NO]
 Yes
-# Line  3 - Path for MultiQC installation ("pip install multiqc" or "conda install multiqc"):
+# Line  3 - Path to java (terminal: "which java")
+/opt/homebrew/opt/openjdk/bin/java
+# Line  4 - 
 
 
 
 
 
-
-# Line  3 - Directory for output files
-
-# Line  4 - Inclusion filename for SNPs
 
 # Line  5 - Inclusion filename for STRs and minimum distance (cM) from SNPs
 
