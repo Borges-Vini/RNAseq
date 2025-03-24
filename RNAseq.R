@@ -36,8 +36,17 @@ parfile <- Filter(function(x) !grepl("^#", x) && nzchar(x), trimws(readLines(par
 
 ##### Output Directory #####
 
-if (!file.exists(parfile[2])) {system(paste("mkdir", parfile[2]))
-} else {system(paste("rm -rf", parfile[2])); system(paste("mkdir", parfile[2])); print("Folder already exist. Overwriting.")}
+if (!file.exists(parfile[2])) {system(paste("mkdir -p", parfile[2]))
+} else {
+  system(paste("rm -rf", parfile[2])) 
+  system(paste("mkdir -p", parfile[2])) 
+  print("Folder already exists. Overwriting.")
+}
+
+system(paste("mkdir -p", file.path(parfile[2], "Raw_fastq")))
+system(paste("mkdir -p", file.path(parfile[2], "QC_results")))
+system(paste("find", parfile[1], "-type f \\( -name '*.fastq' -o -name '*.fastq.gz' \\) -exec cp -f {}",
+             file.path(parfile[2], "Raw_fastq"), "\\;"))
 
 ##### FastQC #####
 
