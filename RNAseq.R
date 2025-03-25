@@ -45,15 +45,15 @@ if (!file.exists(parfile[2])) {system(paste("mkdir -p", parfile[2]))
 
 system(paste("mkdir -p", file.path(parfile[2], "Raw_fastq")))
 system(paste("mkdir -p", file.path(parfile[2], "QC_results")))
-system(paste("find", parfile[1], "-type f \\( -name '*.fastq' -o -name '*.fastq.gz' \\) -exec cp -f {}",
-             file.path(parfile[2], "Raw_fastq"), "\\;"))
+system(paste("cp -f -r", file.path(parfile[1], "**/*.fastq*"), file.path(parfile[2], "Raw_fastq")))
+
 
 ##### FastQC #####
 
 java_path <- dirname(dirname(parfile[4]))
 Sys.setenv(JAVA_HOME=java_path)
 system(paste("java -version"))
-fastqc(fq.dir = (parfile[1]))
+fastqc(fq.dir = file.path(parfile[2], "Raw_fastq"), qc.dir = file.path(parfile[2], "QC_results"))
 
 ##### Summarizing QC Results #####
 
@@ -69,11 +69,11 @@ if (parfile[3] %in% c("YES", "yes", "Yes")) {
   system(paste(multiqc_path, "--version"))
 
 #fastq - Checking and Running
-  if (!file.exists(parfile[1])) { stop("Error: The folder does not exist at the specified path: ", parfile[1]) }
-  fastq_files <- list.files(parfile[1], pattern = "\\.fastq(\\.gz)?$", full.names = TRUE, recursive = TRUE)
-  if (length(fastq_files) == 0) {stop("Error: No .fastq files found in the folder: ", parfile[1])
+  if (!file.exists(file.path(parfile[2], "Raw_fastq"))) { stop("Error: The folder does not exist at the specified path: ", file.path(parfile[2], "Raw_fastq")) }
+  fastq_files <- list.files(file.path(parfile[2], "Raw_fastq"), pattern = "\\.fastq(\\.gz)?$", full.names = TRUE, recursive = TRUE)
+  if (length(fastq_files) == 0) {stop("Error: No .fastq files found in the folder: ", file.path(parfile[2], "Raw_fastq"))
   } else { print("Valid folder with .fastq files found. Proceeding with analysis.")
-  system(paste(multiqc_path, parfile[1],"-o", parfile[1]))}
+  system(paste(multiqc_path, file.path(parfile[2], "QC_results"),"-o", file.path(parfile[2], "QC_results")))}
 }
 
 
