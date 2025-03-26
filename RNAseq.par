@@ -1,7 +1,7 @@
 # Line  1 - Path for input files (.fastq)
-/Users/vborges/Downloads/DELETE/
+/Users/vborges/Downloads/301255_Price_Dickson/301255_Price_Dickson/demultiplex/APAGAR
 # Line  2 - - Path for output files
-/Users/vborges/Downloads/DELETE/DELETE_analysis/
+/Users/vborges/Downloads/DELETE/DELETE_analysis
 # Line  3 - Generate combined Quality Control reports using MultiQC? [YES|NO]
 Yes
 # Line  4 - Path to java (terminal: "which java")
