@@ -28,17 +28,6 @@ invisible(lapply(packages, function(pkg) {
 }))
 fastqc_install()
 
-#fastp - Checking and installing
-  Sys.getenv("PATH")
-  Sys.setenv(PATH = paste(Sys.getenv("PATH"), "~/anaconda3/bin", sep = ":"))
-  Sys.setenv(RETICULATE_MINICONDA_PATH = "~/anaconda3")
-  reticulate::use_condaenv("base", required = TRUE)
-  conda_create(envname = "fastp_env", packages = "python=3.9", channel = "conda-forge")
-  conda_install(envname = "fastp_env", packages = "fastp", channel = "bioconda")
-  use_condaenv("fastp_env", required = TRUE)
-  system("conda run -n fastp_env fastp --version")
-
-  
 ##### Variables #####
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -60,6 +49,7 @@ if (!file.exists(parfile[2])) {system(paste("mkdir -p", parfile[2]))
 system(paste("mkdir -p", file.path(parfile[2], "Raw_fastq")))
 system(paste("mkdir -p", file.path(parfile[2], "QC_results")))
 system(paste("mkdir -p", file.path(parfile[2], "Trimmed")))
+system(paste("mkdir -p", file.path(parfile[2], "Trimmed", "Unpaired")))
 system(paste("cp -f -r", file.path(parfile[1], "**/*.fastq*"), file.path(parfile[2], "Raw_fastq")))
 
 
@@ -109,17 +99,39 @@ for (file in fastq_files) {
 
 ##### Trimming #####
 
+#fastp - Checking and installing
+  Sys.setenv(PATH = paste(Sys.getenv("PATH"), "~/anaconda3/bin", sep = ":"))
+  Sys.setenv(RETICULATE_MINICONDA_PATH = "~/anaconda3")
+  reticulate::use_condaenv("base", required = TRUE)
+  conda_create(envname = "fastp_env", packages = "python=3.9", channel = "conda-forge")
+  conda_install(envname = "fastp_env", packages = "fastp", channel = "bioconda")
+  use_condaenv("fastp_env", required = TRUE)
+  system("conda run -n fastp_env fastp --version")
+
 for (sample in names(fastq_pairs)) {
   if (!is.null(fastq_pairs[[sample]]$R1) & !is.null(fastq_pairs[[sample]]$R2)) {
     message("Sample ", sample, " has both R1 and R2. Trimming adaptors now.")
     
-    trim_fastq(fastq1 = file.path(fastq_pairs[[sample]]$R1), fastq2 = file.path(fastq_pairs[[sample]]$R2), adapter1 = NULL, adapter2 = NULL,
-               illumina = FALSE, nextera = FALSE, small_rna = FALSE,
-               minlength = 20, minqual = 20, trimN = TRUE,
-               retainUnpaired = TRUE, retain1length = 35, retain2length = 35,
-               clipR1 = NULL, clipR2 = NULL, clip3primeR1 = NULL,
-               clip3primeR2 = NULL, robust_check = FALSE, dest.dir = NULL,
-               threads = NULL, trimgalore = "trim_galore")
+    
+    system(paste("conda run -n fastp_env fastp --in1", file.path(fastq_pairs[[sample]]$R1), 
+                 "--in2", file.path(fastq_pairs[[sample]]$R2), 
+                 "--out1", file.path(parfile[2], "Trimmed", paste0(sample, "_R1.fastq.gz")),
+                 "--out2", file.path(parfile[2], "Trimmed", paste0(sample, "_R2.fastq.gz")),
+                 "--unpaired1", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R1.fastq.gz")),
+                 "--unpaired2", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R2.fastq.gz")),
+                 "--failed_out", file.path(parfile[2], "Trimmed", paste0(sample, "_failed.out")), 
+     #            "--phred64",
+                 "--adapter_fasta /Users/vborges/Downloads/TruSeq3-PE-2.fa",
+                 "--cut_front --cut_tail",
+                 "--cut_window_size 4 --cut_mean_quality 15",
+                 "--trim_front1 12 --trim_front2 12",
+                 "--max_len1 37 --max_len2 37",
+                 "--length_required 25",
+                 "--thread 12",
+                 "--html ", file.path(parfile[2], "Trimmed", paste0(sample, "_fastp_report.html")), 
+                 "--json", file.path(parfile[2], "Trimmed", paste0(sample, "_fastp_report.json"))
+                 ))
+  
     
   } else if (!is.null(fastq_pairs[[sample]]$R1)) {message("Sample ", sample, " has only R1. Trimming adaptors now.")
   
