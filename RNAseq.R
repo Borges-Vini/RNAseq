@@ -46,12 +46,49 @@ if (!file.exists(parfile[2])) {system(paste("mkdir -p", parfile[2]))
   print("Folder already exists. Overwriting.")
 }
 
+system(paste("mkdir -p", file.path(parfile[2], "Reference_files")))
 system(paste("mkdir -p", file.path(parfile[2], "Raw_fastq")))
 system(paste("mkdir -p", file.path(parfile[2], "QC_results")))
 system(paste("mkdir -p", file.path(parfile[2], "Trimmed")))
 system(paste("mkdir -p", file.path(parfile[2], "Trimmed", "Unpaired")))
+system(paste("mkdir -p", file.path(parfile[2], "Aligned")))
 system(paste("cp -f -r", file.path(parfile[1], "**/*.fastq*"), file.path(parfile[2], "Raw_fastq")))
 
+##### Reference_files #####
+
+#TruSeq
+truseq_content <- c(
+  ">PrefixPE/1",
+  "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+  ">PrefixPE/2",
+  "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
+  ">PE1",
+  "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+  ">PE1_rc",
+  "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA",
+  ">PE2",
+  "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
+  ">PE2_rc",
+  "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+)
+writeLines(truseq_content, file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"))
+
+#HISAT_index
+
+
+
+
+##### Conda Env #####
+
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "~/anaconda3/bin", sep = ":"))
+Sys.setenv(RETICULATE_MINICONDA_PATH = "~/anaconda3")
+reticulate::use_condaenv("base", required = TRUE)
+conda_create(envname = "RNAseq_env", packages = "python=3.9", channel = "conda-forge")
+conda_install(envname = "RNAseq_env", packages = "fastp", channel = "bioconda")
+conda_install(envname = "RNAseq_env", packages = "hisat2", channel = "bioconda")
+conda_install(envname = "RNAseq_env", packages = "samtools", channel = "bioconda")
+use_condaenv("RNAseq_env", required = TRUE)
+system("conda run -n RNAseq_env samtools --version")
 
 ##### FastQC #####
 
@@ -97,23 +134,14 @@ for (file in fastq_files) {
   }
 }
 
-##### Trimming #####
-
-#fastp - Checking and installing
-  Sys.setenv(PATH = paste(Sys.getenv("PATH"), "~/anaconda3/bin", sep = ":"))
-  Sys.setenv(RETICULATE_MINICONDA_PATH = "~/anaconda3")
-  reticulate::use_condaenv("base", required = TRUE)
-  conda_create(envname = "fastp_env", packages = "python=3.9", channel = "conda-forge")
-  conda_install(envname = "fastp_env", packages = "fastp", channel = "bioconda")
-  use_condaenv("fastp_env", required = TRUE)
-  system("conda run -n fastp_env fastp --version")
+##### Trimming reads #####
 
 for (sample in names(fastq_pairs)) {
   if (!is.null(fastq_pairs[[sample]]$R1) & !is.null(fastq_pairs[[sample]]$R2)) {
     message("Sample ", sample, " has both R1 and R2. Trimming adaptors now.")
     
-    
-    system(paste("conda run -n fastp_env fastp --in1", file.path(fastq_pairs[[sample]]$R1), 
+    system(paste("conda run -n RNAseq_env fastp",
+                 "--in1", file.path(fastq_pairs[[sample]]$R1), 
                  "--in2", file.path(fastq_pairs[[sample]]$R2), 
                  "--out1", file.path(parfile[2], "Trimmed", paste0(sample, "_R1.fastq.gz")),
                  "--out2", file.path(parfile[2], "Trimmed", paste0(sample, "_R2.fastq.gz")),
@@ -121,11 +149,11 @@ for (sample in names(fastq_pairs)) {
                  "--unpaired2", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R2.fastq.gz")),
                  "--failed_out", file.path(parfile[2], "Trimmed", paste0(sample, "_failed.out")), 
      #            "--phred64",
-                 "--adapter_fasta /Users/vborges/Downloads/TruSeq3-PE-2.fa",
+                 "--adapter_fasta", file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"),
                  "--cut_front --cut_tail",
-                 "--cut_window_size 4 --cut_mean_quality 15",
+                 "--cut_window_size 4 --cut_mean_quality 20",
                  "--trim_front1 12 --trim_front2 12",
-                 "--max_len1 37 --max_len2 37",
+    #            "--max_len1 37 --max_len2 37",
                  "--length_required 25",
                  "--thread 12",
                  "--html ", file.path(parfile[2], "Trimmed", paste0(sample, "_fastp_report.html")), 
@@ -133,15 +161,84 @@ for (sample in names(fastq_pairs)) {
                  ))
   
     
-  } else if (!is.null(fastq_pairs[[sample]]$R1)) {message("Sample ", sample, " has only R1. Trimming adaptors now.")
+  } else if (!is.null(fastq_pairs[[sample]]$R1)) {
+    message("Sample ", sample, " has only R1. Trimming adaptors now.")
   
-    trim_fastq
+    system(paste("conda run -n RNAseq_env fastp",
+                 "--in1", file.path(fastq_pairs[[sample]]$R1), 
+                 "--out1", file.path(parfile[2], "Trimmed", paste0(sample, "_R1.fastq.gz")),
+                 "--unpaired1", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R1.fastq.gz")),
+                 "--failed_out", file.path(parfile[2], "Trimmed", paste0(sample, "_failed.out")), 
+    #            "--phred64",
+                 "--adapter_fasta", file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"),
+                 "--cut_front --cut_tail",
+                 "--cut_window_size 4 --cut_mean_quality 20",
+                 "--trim_front1 12 --trim_front2 12",
+    #            "--max_len1 37 --max_len2 37",
+                 "--length_required 25",
+                 "--thread 12",
+                 "--html ", file.path(parfile[2], "Trimmed", paste0(sample, "_fastp_report.html")), 
+                 "--json", file.path(parfile[2], "Trimmed", paste0(sample, "_fastp_report.json"))
+                 ))
     
-    } else {message("Sample ", sample, " does not have R1 or R2 (Unexpected case).")
+  } else {message("Sample ", sample, " does not have R1 or R2 (Unexpected case).")
   }}
 
 
+##### Aligning reads #####  
   
-
-
+    system(paste("conda run -n RNAseq_env hisat2",
+                  "-1", file.path(parfile[2], "Trimmed", paste0(sample, "_R1.fastq.gz")),
+                  "-2", file.path(parfile[2], "Trimmed", paste0(sample, "_R2.fastq.gz")),
+                  "-x", 
+                  "-S",  
+   
+                 
+                 
+                  ))
+  
+  
+  
+  center="Marshall_Genomics_Core"
+  platform="Illumina"
+  model="NextSeq2000"
+  genome_file="/Genomes/HISAT_indexes/genome"
+  
+  samples=( `ls ${trimmed_dir}/*_R1.fastq.gz | \
+           (while read f; do basename ${f} _R1.fastq.gz ; done) ` )
+  
+  if [ -z ${maxAligners} ] ; then
+  maxAligners=12
+  fi
+  
+  numSamples=${#samples[@]}
+    
+    start=0
+    while [ $start -lt $numSamples ] ; do
+    for s in ${samples[@]:start:maxAligners}; do (
+      f1=${trimmed_dir}/${s}_R1.fastq.gz
+      f2=${trimmed_dir}/${s}_R2.fastq.gz
+      ${hisat2} --phred33 --no-mixed \
+      --rg-id ${s} \
+      --rg SM:${s} \
+      --rg CN:${center} \
+      --rg PL:${platform} \
+      --rg PM:${model}  \
+      -x ${genome_file} \
+      -1 ${f1} \
+      -2 ${f2} \
+      2>${log_dir}/align_${s}.log \
+      | ${samtools} sort -n -m 6G - 2>${log_dir}/name_sort_${s}.log \
+      | samtools fixmate -m - -  2>${log_dir}/fixmate_${s}.log \
+      | samtools sort -m 6G - 2>${log_dir}/pos_sort_${s}.log \
+      | samtools markdup -r - ${aligned_dir}/${s}.bam 2>${log_dir}/markdup_${s}.log && \
+      samtools index ${aligned_dir}/${s}.bam 2>${log_dir}/index_${s}.log
+    )&
+      done
+    wait
+    
+    start=$[ $start + $maxAligners ]
+    done
+    wait
+    
 
