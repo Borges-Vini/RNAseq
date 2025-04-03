@@ -1,11 +1,28 @@
-# Line  1 - Path for input files (.fastq)
+# Line  1 - Path for input files (.fastq):
 /Users/vborges/Downloads/301255_Price_Dickson/301255_Price_Dickson/demultiplex/APAGAR
-# Line  2 - - Path for output files
+# Line  2 - - Path for output files:
 /Users/vborges/Downloads/DELETE/DELETE_analysis
-# Line  3 - Generate combined Quality Control reports using MultiQC? [YES|NO]
-Yes
-# Line  4 - Path to java (terminal: "which java")
+# Line  3 - Generate combined Quality Control reports using MultiQC? [YES|NO]:
+yes
+# Line  4 - Path to java (terminal: "which java"):
 /opt/homebrew/opt/openjdk/bin/java
+# Line  5 - Path to adapter file, or type "TruSeq3-PE-2" for Truseq paired-end data (150bp):
+/Users/vborges/Downloads/DELETE/DELETE_analysis/Reference_files/sfdfdfdfd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Line  5 - Inclusion filename for STRs and minimum distance (cM) from SNPs

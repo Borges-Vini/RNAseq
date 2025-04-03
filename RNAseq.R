@@ -28,7 +28,7 @@ invisible(lapply(packages, function(pkg) {
 }))
 fastqc_install()
 
-##### Variables #####
+##### PAR file #####
 
 args <- commandArgs(trailingOnly=TRUE)
 parfilepath <- args[1]
@@ -56,27 +56,33 @@ system(paste("cp -f -r", file.path(parfile[1], "**/*.fastq*"), file.path(parfile
 
 ##### Reference_files #####
 
-#TruSeq
-truseq_content <- c(
-  ">PrefixPE/1",
-  "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
-  ">PrefixPE/2",
-  "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
-  ">PE1",
-  "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
-  ">PE1_rc",
-  "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA",
-  ">PE2",
-  "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
-  ">PE2_rc",
-  "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
-)
-writeLines(truseq_content, file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"))
+if (grepl("(?i)truseq3-pe", parfile[5], perl = TRUE)) {
+  
+  truseq_content <- c(
+    ">PrefixPE/1",
+    "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+    ">PrefixPE/2",
+    "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
+    ">PE1",
+    "TACACTCTTTCCCTACACGACGCTCTTCCGATCT",
+    ">PE1_rc",
+    "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA",
+    ">PE2",
+    "GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT",
+    ">PE2_rc",
+    "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+  )
+  writeLines(truseq_content, file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"))
+  adapter_path <- file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa")
+  
+  }else {
+    adapter_path <- parfile[5]
+    }
 
 #HISAT_index
-
-
-
+options(timeout = 600)
+download.file("https://cloud.biohpc.swmed.edu/index.php/s/grcm38/download", 
+              destfile = file.path(parfile[2], "Reference_files", "grcm38.tar.gz"), mode = "wb")
 
 ##### Conda Env #####
 
@@ -99,8 +105,8 @@ fastqc(fq.dir = file.path(parfile[2], "Raw_fastq"), qc.dir = file.path(parfile[2
 
 ##### Summarizing QC Results #####
 
-if (parfile[3] %in% c("YES", "yes", "Yes")) { 
-  
+if (grepl("(?i)y", parfile[3], perl = TRUE)) {
+    
 #multiqc - Checking and installing
   venv_path <- "multiqc_env"
   if (!file.exists(venv_path)) {
@@ -149,7 +155,7 @@ for (sample in names(fastq_pairs)) {
                  "--unpaired2", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R2.fastq.gz")),
                  "--failed_out", file.path(parfile[2], "Trimmed", paste0(sample, "_failed.out")), 
      #            "--phred64",
-                 "--adapter_fasta", file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"),
+                 "--adapter_fasta", adapter_path,
                  "--cut_front --cut_tail",
                  "--cut_window_size 4 --cut_mean_quality 20",
                  "--trim_front1 12 --trim_front2 12",
@@ -170,7 +176,7 @@ for (sample in names(fastq_pairs)) {
                  "--unpaired1", file.path(parfile[2], "Trimmed", "Unpaired", paste0(sample, "_R1.fastq.gz")),
                  "--failed_out", file.path(parfile[2], "Trimmed", paste0(sample, "_failed.out")), 
     #            "--phred64",
-                 "--adapter_fasta", file.path(parfile[2], "Reference_files", "TruSeq3-PE-2.fa"),
+                 "--adapter_fasta", adapter_path,
                  "--cut_front --cut_tail",
                  "--cut_window_size 4 --cut_mean_quality 20",
                  "--trim_front1 12 --trim_front2 12",
@@ -190,8 +196,8 @@ for (sample in names(fastq_pairs)) {
     system(paste("conda run -n RNAseq_env hisat2",
                   "-1", file.path(parfile[2], "Trimmed", paste0(sample, "_R1.fastq.gz")),
                   "-2", file.path(parfile[2], "Trimmed", paste0(sample, "_R2.fastq.gz")),
-                  "-x", 
-                  "-S",  
+                  "-x", file.path(parfile[2], "Reference_files", "grcm38.tar.gz"),
+                  "-S", file.path(parfile[2], "Aligned", paste0(sample, "_.sam"))),
    
                  
                  
