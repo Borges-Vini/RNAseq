@@ -26,7 +26,7 @@ Or use the following BibTeX entry:
 ```bibtex
 @misc{borges2025rnaseq,
   author       = {Vinícius M. Borges},
-  title        = {RNAseq Pipeline – Borges Lab},
+  title        = {RNAseq Pipeline – Nato Lab},
   year         = {2025},
   publisher    = {GitHub},
   journal      = {GitHub repository},
