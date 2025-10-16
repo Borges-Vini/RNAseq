@@ -28,7 +28,6 @@ invisible(lapply(bioc_packages, library, character.only = TRUE))
 
 args <- commandArgs(trailingOnly=TRUE)
 parfilepath <- args[1]
-parfilepath <- "/Users/vborges/RNAseq/RNAseq.par"
 if (!file.exists(parfilepath)) {stop("Error: The file does not exist at the specified path: ", parfilepath)
   } else {print("Reading parameter file")}
 parfile <- Filter(function(x) !grepl("^#", x) && nzchar(x), trimws(readLines(parfilepath, warn = FALSE)))
@@ -219,7 +218,7 @@ for (sample in names(trimmed_pairs)[27:length(trimmed_pairs)]) {
             "-p", maxAligners,
             "--rg-id", sample,
             "--rg", paste0("SM:", sample),
-            "--rg", "CN:Marshall_Genomics_Core",
+            "--rg", "CN:Genomics_Core",
             "--rg", "PL:Illumina",
             "--rg", "PM:NextSeq2000",
             "-x", shQuote(hisatindexgenome_path),
@@ -295,7 +294,7 @@ for (sample in names(trimmed_pairs)[27:length(trimmed_pairs)]) {
           "-p", maxAligners,
           "--rg-id", sample,
           "--rg", paste0("SM:", sample),
-          "--rg", "CN:Marshall_Genomics_Core",
+          "--rg", "CN:Genomics_Core",
           "--rg", "PL:Illumina",
           "--rg", "PM:NextSeq2000",
           "-x", shQuote(hisatindexgenome_path),
